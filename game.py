@@ -2,6 +2,7 @@
 import sys
 import sdl2
 import sdl2.ext
+import time
 from random import randint
 
 # Constant variables
@@ -84,6 +85,8 @@ def renderHPBar1(x, y, w, h, percent, fgColor, bgColor, surface):
     sdl2.ext.fill(surface, bgColor, rect1)
     sdl2.ext.fill(surface, fgColor, rect2)
 
+def check_cooldown(now_time, last_fire_time):
+    return float(now_time) - float(last_fire_time)
 
 def run():
     sdl2.ext.init()
@@ -114,6 +117,8 @@ def run():
 
     sdl2.ext.fill(windowsurface, WHITE)
 
+    last_fire_time = 0
+
     running = True
     while running:
 
@@ -122,6 +127,7 @@ def run():
         renderHPBar1(30, 10, 400, 40, 1, GREEN, BLACK, windowsurface)
         renderHPBar2(480, 10, 400, 40, 1, GREEN, BLACK, windowsurface)
 
+        now_time = time.time()
         for event in sdl2.ext.get_events():
             if event.type == sdl2.SDL_QUIT:
                 running = False
@@ -139,15 +145,22 @@ def run():
 
         keystatus = sdl2.SDL_GetKeyboardState(None)
 
+        # shoot a missile based on character damage
         if keystatus[sdl2.SDL_SCANCODE_SPACE]:
-            # shoot a missile based on character damage
-            player1.sprite.missiles += 1
-            if player1.sprite.missiles <= 3:
+            print(player1missiles)
+            print(now_time, float(now_time- last_fire_time))
+            if check_cooldown(now_time,last_fire_time) > 2:
+                last_fire_time = time.time()
+                #player1.sprite.missiles += 1
                 missile1 = Missile1(world, missileSprite1, player1.sprite.playerdata.damage,
                     player1.sprite.x + 10, player1.sprite.y)
                 player1missiles.append(missile1)
-            else:
-                player1.sprite.missiles = 0
+                cd_clock_start = time.time()
+                #player1.sprite.missles = 0
+
+
+
+
 
 
         if keystatus[sdl2.SDL_SCANCODE_W]:
@@ -178,8 +191,10 @@ def run():
             else:
                 player2.sprite.y += player2.sprite.playerdata.speed
 
-        for missile in player1missiles:
-            missile.sprite.x += 3
+        for i in range(len(player1missiles)-1):
+            if player1missiles[i].sprite.x < 900: #size of the screen
+                player1missiles[i].sprite.x += 3
+
 
 
         """
