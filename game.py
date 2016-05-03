@@ -126,28 +126,28 @@ def run():
             if event.type == sdl2.SDL_QUIT:
                 running = False
                 break
-            """if event.type == sdl2.SDL_KEYDOWN:
+            if event.type == sdl2.SDL_KEYDOWN:
                 if event.key.keysym.sym == sdl2.SDLK_SPACE:
                     # shoot a missile based on character damage
                     player1.sprite.missiles += 1
                     if player1.sprite.missiles <= 3:
                         missile1 = Missile1(world, missileSprite1, player1.sprite.playerdata.damage,
-                                            player1.sprite.x + 10, player1.sprite.y)
+                                            player1.sprite.x + 50, player1.sprite.y + 80)
                         player1missiles.append(missile1)
                     else:
-                        player1.sprite.missiles = 0"""
+                        player1.sprite.missiles = 0
 
         keystatus = sdl2.SDL_GetKeyboardState(None)
 
-        if keystatus[sdl2.SDL_SCANCODE_SPACE]:
+        """if keystatus[sdl2.SDL_SCANCODE_SPACE]:
             # shoot a missile based on character damage
             player1.sprite.missiles += 1
             if player1.sprite.missiles <= 3:
                 missile1 = Missile1(world, missileSprite1, player1.sprite.playerdata.damage,
-                    player1.sprite.x + 10, player1.sprite.y)
+                    player1.sprite.x + 50, player1.sprite.y + 50)
                 player1missiles.append(missile1)
             else:
-                player1.sprite.missiles = 0
+                player1.sprite.missiles = 0"""
 
 
         if keystatus[sdl2.SDL_SCANCODE_W]:
@@ -179,8 +179,7 @@ def run():
                 player2.sprite.y += player2.sprite.playerdata.speed
 
         for missile in player1missiles:
-            missile.sprite.x += 3
-
+                missile.sprite.x += 1
 
         """
         if event.type == sdl2.SDL_KEYDOWN:
