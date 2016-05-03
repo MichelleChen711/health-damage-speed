@@ -184,16 +184,10 @@ def run():
             else:
                 player2.sprite.y += player2.sprite.playerdata.speed
 
-<<<<<<< HEAD
-        for missile in player1missiles:
-                missile.sprite.x += 1
-=======
         for i in range(len(player1missiles)-1):
             if player1missiles[i].sprite.x < 900: #size of the screen
                 player1missiles[i].sprite.x += 3
 
-
->>>>>>> 25cc3c73ce1ab92cce44a1402f512e869da9852a
 
         """
         if event.type == sdl2.SDL_KEYDOWN:
