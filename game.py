@@ -1,4 +1,5 @@
 """Health Damage Speed"""
+#Michelle Chen & Kevin Carter
 import sys
 import sdl2
 import sdl2.ext
