@@ -96,10 +96,11 @@ def check_cooldown(now_time, last_fire_time):
     return float(now_time) - float(last_fire_time)
 
 
-def collisonDetect(mx,my,mwidth,cx,cy,cwidth):
+def isCollision(mx,my,mwidth,cx,cy,cheight):
     # right side of missile is more than left of character
     # top of missile is less than bottom of character and more than top of character
-    if (mx + mwidth > cx) and  (my < cy + cwidth) and (my > cy):
+
+    if (mx + mwidth >= cx) and (mx + mwidth <= cx + 5) and (my < cy + cheight) and (my > cy):
         return True
     else:
         return False
@@ -160,6 +161,8 @@ def run():
     #renderHPBar1(30, 10, 400, 40, 1, GREEN, BLACK, windowsurface)
     #renderHPBar2(480, 10, 400, 40, 1, GREEN, BLACK, windowsurface)
 
+    hit2 = False
+    hit1 = False
 
     running = True
     while running:
@@ -173,32 +176,56 @@ def run():
         now_time = time.time()
 
         if len(player1missiles) > 0:
+            missile = player1missiles[0]
             moveMissile(player1missiles[0])
+            if isCollision(missile.sprite.x, missile.sprite.y, missileSprite1.size[0], player2.sprite.x,
+                           player2.sprite.y, 120):
+                hit2 = True
             if player1missiles[0].sprite.x >= 900 + missileSprite1.size[0]:
                 player1missiles.pop(0)
 
         if len(player1missiles2) > 0:
+            missile = player1missiles2[0]
             moveMissile(player1missiles2[0])
+            if isCollision(missile.sprite.x, missile.sprite.y, missileSprite1.size[0], player2.sprite.x,
+                           player2.sprite.y, 120):
+                hit2 = True
             if player1missiles2[0].sprite.x >= 900 + missileSprite1_2.size[0]:
                 player1missiles2.pop(0)
 
         if len(player1missiles3) > 0:
+            missile = player1missiles3[0]
             moveMissile(player1missiles3[0])
+            if isCollision(missile.sprite.x, missile.sprite.y, missileSprite1.size[0], player2.sprite.x,
+                           player2.sprite.y, 120):
+                hit2 = True
             if player1missiles3[0].sprite.x >= 900 + missileSprite1_3.size[0]:
                 player1missiles3.pop(0)
 
         if len(player2missiles) > 0:
+            missile = player2missiles[0]
             moveMissile(player2missiles[0])
+            if isCollision(missile.sprite.x, missile.sprite.y, missileSprite2.size[0], player1.sprite.x,
+                           player1.sprite.y, 120):
+                hit1 = True
             if player2missiles[0].sprite.x <= 0 - missileSprite2.size[0]:
                 player2missiles.pop(0)
 
         if len(player2missiles2) > 0:
+            missile = player2missiles2[0]
             moveMissile(player2missiles2[0])
+            if isCollision(missile.sprite.x, missile.sprite.y, missileSprite2.size[0], player1.sprite.x,
+                           player1.sprite.y, 120):
+                hit1 = True
             if player2missiles2[0].sprite.x <= 0 - missileSprite2_2.size[0]:
                 player2missiles2.pop(0)
 
         if len(player2missiles3) > 0:
+            missile = player2missiles3[0]
             moveMissile(player2missiles3[0])
+            if isCollision(missile.sprite.x, missile.sprite.y, missileSprite2.size[0], player1.sprite.x,
+                           player1.sprite.y, 120):
+                hit1 = True
             if player2missiles3[0].sprite.x <= 0 - missileSprite2_3.size[0]:
                 player2missiles3.pop(0)
 
@@ -216,21 +243,24 @@ def run():
         if keystatus[sdl2.SDL_SCANCODE_SPACE]:
             if len(player1missiles) == 0:
                 missile1 = Missile(world, missileSprite1, player1.sprite.playerdata.damage, 8,
-                                   player1.sprite.x + 50, player1.sprite.y + missileSprite1.size[0])
+                                   player1.sprite.x + 50,
+                                   player1.sprite.y + 60 - int(missileSprite1.size[0]/2))
                 player1missiles.append(missile1)
                 last_fire_time1 = time.time()
                 last_fire_time1_1 = time.time()
             if check_cooldown(now_time, last_fire_time1) > .2:
                 if len(player1missiles2) == 0:
                     missile2 = Missile(world, missileSprite1_2, player1.sprite.playerdata.damage, 8,
-                                    player1.sprite.x + 50, player1.sprite.y + missileSprite1.size[0])
+                                       player1.sprite.x + 50,
+                                       player1.sprite.y + 60 - int(missileSprite1.size[0]/2))
                     player1missiles2.append(missile2)
                     last_fire_time1 = time.time()
                     last_fire_time1_1 = time.time()
             if check_cooldown(now_time, last_fire_time1_1) > .2:
                 if len(player1missiles3) == 0:
                     missile3 = Missile(world, missileSprite1_3, player1.sprite.playerdata.damage, 8,
-                                    player1.sprite.x + 50, player1.sprite.y + missileSprite1.size[0])
+                                       player1.sprite.x + 50,
+                                       player1.sprite.y + 60 - int(missileSprite1.size[0]/2))
                     player1missiles3.append(missile3)
                     last_fire_time1_1 = time.time()
                     last_fire_time1 = time.time()
@@ -239,21 +269,24 @@ def run():
         if keystatus[sdl2.SDL_SCANCODE_RETURN]:
             if len(player2missiles) == 0:
                 missile1 = Missile(world, missileSprite2, player2.sprite.playerdata.damage, -8,
-                                   player2.sprite.x + 50, player2.sprite.y + missileSprite2.size[0])
+                                    player2.sprite.x + 50,
+                                    player2.sprite.y + 60 - int(missileSprite2.size[0]/2))
                 player2missiles.append(missile1)
                 last_fire_time2 = time.time()
                 last_fire_time2_1 = time.time()
             if check_cooldown(now_time, last_fire_time2) > .2:
                 if len(player2missiles2) == 0:
                     missile2 = Missile(world, missileSprite2_2, player2.sprite.playerdata.damage, -8,
-                                    player2.sprite.x + 50, player2.sprite.y + missileSprite2.size[0])
+                                    player2.sprite.x + 50,
+                                    player2.sprite.y + 60 - int(missileSprite2.size[0]/2))
                     player2missiles2.append(missile2)
                     last_fire_time2 = time.time()
                     last_fire_time2_1 = time.time()
             if check_cooldown(now_time, last_fire_time2_1) > .2:
                 if len(player2missiles3) == 0:
                     missile3 = Missile(world, missileSprite2_3, player2.sprite.playerdata.damage, -8,
-                                    player2.sprite.x + 50, player2.sprite.y + missileSprite2.size[0])
+                                    player2.sprite.x + 50,
+                                    player2.sprite.y + 60 - int(missileSprite2.size[0]/2))
                     player2missiles3.append(missile3)
                     last_fire_time2_1 = time.time()
                     last_fire_time2 = time.time()
@@ -325,11 +358,22 @@ def run():
                         player2.vy = 0
         """
 
+        if hit2:
+            print("called")
+            player2.sprite.playerdata.health -= int(player1.sprite.playerdata.damage/2)
+            hit2 = False
+
+        if hit1:
+            player1.sprite.playerdata.health -= int(player2.sprite.playerdata.damage/2)
+            hit1 = False
+
         sdl2.SDL_Delay(10)
+
         world.process()
 
         #processor = sdl2.ext.TestEventProcessor()
         #processor.run(window)
         #spriterenderer.render(sprite)
+
 if __name__ == "__main__":
     sys.exit(run())
