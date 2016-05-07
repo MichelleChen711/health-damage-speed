@@ -4,6 +4,7 @@ import sys
 import sdl2
 import sdl2.ext
 import time
+import math
 from random import randint
 
 # Constant variables
@@ -101,7 +102,8 @@ def isCollision(mx,my,mwidth,cx,cy,cheight):
     # right side of missile is more than left of character
     # top of missile is less than bottom of character and more than top of character
 
-    if (mx + mwidth >= cx) and (mx + mwidth <= cx + 5) and (my < cy + cheight) and (my > cy):
+    #print(mx + mwidth, cx)
+    if (mx + mwidth >= cx) and (mx + mwidth <= cx + 10) and (my < cy + cheight) and (my > cy):
         return True
     else:
         return False
@@ -127,6 +129,8 @@ def run():
 
     player1 = Player(world, sprite1, 5, 5, 10, 0, 250)
     player2 = Player(world, sprite2, 8, 10, 2, 790, 250)
+    #player1 = Player(world, sprite1, 5, 15, 5, 0, 250)
+    #player2 = Player(world, sprite2, 10, 6, 4, 790, 250)
 
     missileSprite1 = factory.from_color(RED, size=(player1.sprite.playerdata.damage * 5,
                                                    player1.sprite.playerdata.damage * 5))
@@ -361,11 +365,12 @@ def run():
 
         if hit2:
             print("called")
-            player2.sprite.playerdata.health -= int(player1.sprite.playerdata.damage/2)
+            player2.sprite.playerdata.health -= math.ceil(player1.sprite.playerdata.damage/2)
             hit2 = False
 
         if hit1:
-            player1.sprite.playerdata.health -= int(player2.sprite.playerdata.damage/2)
+            print("called")
+            player1.sprite.playerdata.health -= math.ceil(player2.sprite.playerdata.damage/2)
             hit1 = False
 
         sdl2.SDL_Delay(10)
