@@ -440,20 +440,20 @@ def main():
 
     bunny_t, monkey_t, pig_t, cat_t, dog_t, chicken_t = turtle.Turtle(), turtle.Turtle(), turtle.Turtle(), turtle.Turtle(), turtle.Turtle(), turtle.Turtle()
 
-    cwn.register_shape("/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/bunny.gif")
-    cwn.register_shape("/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/monkey.gif")
-    cwn.register_shape("/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/pig.gif")
-    cwn.register_shape("/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/cat.gif")
-    cwn.register_shape("/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/dog.gif")
-    cwn.register_shape("/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/chicken.gif")
+    cwn.register_shape("resources/bunny.gif")
+    cwn.register_shape("resources/monkey.gif")
+    cwn.register_shape("resources/pig.gif")
+    cwn.register_shape("resources/cat.gif")
+    cwn.register_shape("resources/dog.gif")
+    cwn.register_shape("resources/chicken.gif")
 
 
-    bunny_t.shape(name="/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/bunny.gif")
-    monkey_t.shape(name="/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/monkey.gif")
-    pig_t.shape(name="/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/pig.gif")
-    cat_t.shape(name="/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/cat.gif")
-    dog_t.shape(name="/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/dog.gif")
-    chicken_t.shape(name="/Users/kevin_carter787/PycharmProjects/PythonFinalProject/health-damage-speed/resources/chicken.gif")
+    bunny_t.shape(name="resources/bunny.gif")
+    monkey_t.shape(name="resources/monkey.gif")
+    pig_t.shape(name="resources/pig.gif")
+    cat_t.shape(name="resources/cat.gif")
+    dog_t.shape(name="resources/dog.gif")
+    chicken_t.shape(name="resources/chicken.gif")
 
     done = False
     def exit_charscreen():
@@ -481,7 +481,7 @@ def main():
         else:
             ct.up()
             ct.goto(0,100)
-            ct.write("Hey player1 its not nice to return an adopted {}".format(player1_char), align="center", font=("Helvetica", 14, "bold"))
+            ct.write("Hey player1 its not nice to return an adopted {}".format(player1_char), align="center", font=("Helvetica", 14, "normal"))
             cwn.update()
 
         if player2_char != "":
@@ -496,7 +496,7 @@ def main():
         else:
             ct.up()
             ct.goto(0,100)
-            ct.write("Hey player1 its not nice to return an adopted {}".format(player1_char), align="center", font=("Helvetica", 14, "bold"))
+            ct.write("Hey player1 its not nice to return an adopted {}".format(player1_char), align="center", font=("Helvetica", 14, "normal"))
             cwn.update()
 
         if player2_char != "":
