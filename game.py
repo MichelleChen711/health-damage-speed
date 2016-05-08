@@ -6,7 +6,7 @@ import sdl2.ext
 import time
 import math
 #import sdl2.sdlmixer   //SDL2_mixer import didn't want to work
-#from sdl2.sdlmixer import *
+#import sdl2.sdlttf
 from sdl2.ext.compat import byteify
 from ctypes import *
 
@@ -48,7 +48,6 @@ class Player(sdl2.ext.Entity):
         self.vx = 0
         self.vy = 0
         self.sprite.missiles = 0
-
 
 
 class Missile(sdl2.ext.Entity):
