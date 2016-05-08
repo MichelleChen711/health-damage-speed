@@ -5,6 +5,7 @@ import sdl2
 import sdl2.ext
 import time
 import math
+
 #import sdl2.sdlmixer
 #from sdl2.sdlmixer import *
 #from sdl2.ext.compat import byteify
@@ -113,14 +114,14 @@ def isCollision(mx,my,mwidth,cx,cy,cheight):
 
 
 def run():
-    sdl2.ext.init()
 
+    sdl2.ext.init()
     window = sdl2.ext.Window("Health Damage Speed", size=(900, 800))
     window.show()
 
     factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
-    sprite1 = factory.from_image(RESOURCES.get_path("bunny.bmp"))
-    sprite2 = factory.from_image(RESOURCES.get_path("monkey.bmp"))
+    sprite1 = factory.from_image(RESOURCES.get_path("{}.bmp".format(p1_sprite)))
+    sprite2 = factory.from_image(RESOURCES.get_path("{}.bmp".format(p1_sprite)))
 
     #win1 = factory.from_image(RESOURCES.get_path("winner1.bmp"))
     #win2 = factory.from_image(RESOURCES.get_path("winner2.bmp"))

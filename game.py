@@ -5,6 +5,7 @@ from sdl2 import *
 import sdl2.ext
 import time
 import math
+import Stat_select
 #import sdl2.sdlmixer   //SDL2_mixer import didn't want to work
 #import sdl2.sdlttf
 from sdl2.ext.compat import byteify
@@ -148,14 +149,15 @@ def isCollision(mx,my,mwidth,cx,cy,cheight):
 
 
 def run():
+    p1_sprite, p1_health, p1_damage, p1_speed, p2_sprite, p2_health, p2_damage, p2_speed = Stat_select.main()
     sdl2.ext.init()
 
     window = sdl2.ext.Window("Health Damage Speed", size=(900, 800))
     window.show()
 
     factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
-    sprite1 = factory.from_image(RESOURCES.get_path("bunny.bmp"))
-    sprite2 = factory.from_image(RESOURCES.get_path("monkey.bmp"))
+    sprite1 = factory.from_image(RESOURCES.get_path("{}.bmp".format(p1_sprite)))
+    sprite2 = factory.from_image(RESOURCES.get_path("{}.bmp".format(p2_sprite)))
 
     win1 = factory.from_image(RESOURCES.get_path("winner1.bmp"))
     win2 = factory.from_image(RESOURCES.get_path("winner2.bmp"))
@@ -171,8 +173,8 @@ def run():
 
     windowsurface = window.get_surface()
 
-    player1 = Player(world, sprite1, 15, 5, 5, 0, 250)
-    player2 = Player(world, sprite2, 8, 10, 2, 790, 250)
+    player1 = Player(world, sprite1, p1_health, p1_damage, p1_speed, 0, 250)
+    player2 = Player(world, sprite2, p2_health, p2_damage, p2_speed, 790, 250)
     #player1 = Player(world, sprite1, 5, 15, 5, 0, 250)
     #player2 = Player(world, sprite2, 10, 6, 4, 790, 250)
 

@@ -597,6 +597,11 @@ def main():
     cwn.mainloop()
     print("after cwn.mainloop")
 
+    numbers = [number * 2 for number in range(1, 11)]
+
+
+
     return player1_char, player1_health, player1_damage, player1_speed,player2_char, player2_health, player2_damage, player2_speed
 
-print(main())
+if __name__ == "__main__":
+    print(main())
