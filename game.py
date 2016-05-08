@@ -226,6 +226,10 @@ def run():
     missileSound = WavSound(missile_file)
     devid2 = SDL_OpenAudioDevice(None, 0, missileSound.spec, None, 0)
 
+    explosion_file = RESOURCES.get_path("explosion.wav")
+    explosionSound = WavSound(explosion_file)
+    devid3 = SDL_OpenAudioDevice(None, 0, explosionSound.spec, None, 0)
+
 
     if devid == 0:
         raise RuntimeError("Unable to open audio device: {}".format(SDL_GetError()))
@@ -412,13 +416,19 @@ def run():
                 player2.sprite.y += 4 + (player2.sprite.playerdata.speed)
 
         if hit2:
-            print("called")
             player2.sprite.playerdata.health -= math.ceil(player1.sprite.playerdata.damage/2)
+            SDL_CloseAudioDevice(devid3)
+            explosionSound = WavSound(explosion_file)
+            devid3 = SDL_OpenAudioDevice(None, 0, explosionSound.spec, None, 0)
+            SDL_PauseAudioDevice(devid3, 0)
             hit2 = False
 
         if hit1:
-            print("called")
             player1.sprite.playerdata.health -= math.ceil(player2.sprite.playerdata.damage/2)
+            SDL_CloseAudioDevice(devid3)
+            explosionSound = WavSound(explosion_file)
+            devid3 = SDL_OpenAudioDevice(None, 0, explosionSound.spec, None, 0)
+            SDL_PauseAudioDevice(devid3, 0)
             hit1 = False
 
         if player1.sprite.playerdata.health <= 0:
@@ -443,6 +453,9 @@ def run():
 
         if sound.done:
             SDL_CloseAudioDevice(devid)
+
+        if explosionSound.done:
+            SDL_CloseAudioDevice(devid3)
 
         sdl2.SDL_Delay(10)
 
