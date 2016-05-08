@@ -5,9 +5,9 @@ A shooting game created using PySDL2 for Python for Applications Final Project
 Michelle Chen and Kevin Carter
 
 #Requirements
-PySDL2
-Turtle
-PyAudio
+* PySDL2
+* Turtle
+* PyAudio
 
 pysdl2 turned out to be quite difficult to implement. There are not a lot of information guides on the basics of using SDL2 in Python for games available. Most of them are in C and C++ which made it difficult to start with. 
 
