@@ -35,3 +35,6 @@ Each player’s stats are put into use: the health entered is reflected in each 
 10. Play :)
 
 Notes: each of the 3 missiles a player can shoot has its own 2 second cool down, music played when game over is our original composition made using pyAudio (the file is included), missiles and collisions have sound effects.  
+
+#Credit
+Contribution for the project has been equally split despite the number of lines committed. (We worked side-by-side throughout the entire project)
