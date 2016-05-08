@@ -1,10 +1,14 @@
 """Health Damage Speed"""
 #Michelle Chen & Kevin Carter
 import sys
-import sdl2
+from sdl2 import *
 import sdl2.ext
 import time
-from random import randint
+import math
+#import sdl2.sdlmixer   //SDL2_mixer import didn't want to work
+#import sdl2.sdlttf
+from sdl2.ext.compat import byteify
+from ctypes import *
 
 # Constant variables
 WHITE = sdl2.ext.Color(255, 255, 255)
@@ -46,7 +50,6 @@ class Player(sdl2.ext.Entity):
         self.sprite.missiles = 0
 
 
-
 class Missile(sdl2.ext.Entity):
     def __init__(self, world, sprite, damage, vx, posx=0, posy=0):
         self.sprite = sprite
@@ -56,6 +59,42 @@ class Missile(sdl2.ext.Entity):
         self.sprite.y = posy
         self.sprite.vx = vx
 
+
+class WavSound(object):
+    def __init__(self, file):
+        super(WavSound, self).__init__()
+        self._buf = POINTER(Uint8)()
+        self._length = Uint32()
+        self._bufpos = 0
+        self.spec = SDL_AudioSpec(0, 0, 0, 0)
+        self._load_file(file)
+        self.spec.callback = SDL_AudioCallback(self._play_next)
+        self.done = False
+
+    def __del__(self):
+        SDL_FreeWAV(self._buf)
+
+    def _load_file(self, file):
+        rw = SDL_RWFromFile(byteify(file, "utf-8"), b"rb")
+        sp = SDL_LoadWAV_RW(rw, 1, byref(self.spec), byref(self._buf), byref(self._length))
+        if sp is None:
+            raise RuntimeError("Could not open audio file: {}".format(SDL_GetError()))
+
+    def _play_next(self, notused, stream, len):
+        length = self._length.value
+        numbytes = min(len, length - self._bufpos)
+        for i in range(0, numbytes):
+            stream[i] = self._buf[self._bufpos + i]
+        self._bufpos += numbytes
+
+        # If not enough bytes in buffer, add silence
+        rest = min(0, len - numbytes)
+        for i in range(0, rest):
+            stream[i] = 0
+
+        # Are we done playing sound?
+        if self._bufpos == length:
+            self.done = True
 
 def renderHPBar2(x, y, w, h, health, fgColor, bgColor, surface):
     if health > 18:
@@ -101,7 +140,8 @@ def isCollision(mx,my,mwidth,cx,cy,cheight):
     # right side of missile is more than left of character
     # top of missile is less than bottom of character and more than top of character
 
-    if (mx + mwidth >= cx) and (mx + mwidth <= cx + 5) and (my < cy + cheight) and (my > cy):
+    #print(mx + mwidth, cx)
+    if (mx + mwidth >= cx) and (mx + mwidth <= cx + 10) and (my < cy + cheight) and (my > cy):
         return True
     else:
         return False
@@ -109,6 +149,7 @@ def isCollision(mx,my,mwidth,cx,cy,cheight):
 
 def run():
     sdl2.ext.init()
+
     window = sdl2.ext.Window("Health Damage Speed", size=(900, 800))
     window.show()
 
@@ -116,17 +157,24 @@ def run():
     sprite1 = factory.from_image(RESOURCES.get_path("bunny.bmp"))
     sprite2 = factory.from_image(RESOURCES.get_path("monkey.bmp"))
 
+    win1 = factory.from_image(RESOURCES.get_path("winner1.bmp"))
+    win2 = factory.from_image(RESOURCES.get_path("winner2.bmp"))
+
+    win1.position = 450 - 140, 400 - 100
+    win2.position = 450 - 140, 400 - 100
+
     world = sdl2.ext.World()
 
-    #spriterenderer = factory.create_sprite_render_system(window)
     spriterenderer = SoftwareRenderSystem(window)
     context = sdl2.ext.Renderer(window)
     world.add_system(spriterenderer)
 
     windowsurface = window.get_surface()
 
-    player1 = Player(world, sprite1, 5, 5, 10, 0, 250)
+    player1 = Player(world, sprite1, 15, 5, 5, 0, 250)
     player2 = Player(world, sprite2, 8, 10, 2, 790, 250)
+    #player1 = Player(world, sprite1, 5, 15, 5, 0, 250)
+    #player2 = Player(world, sprite2, 10, 6, 4, 790, 250)
 
     missileSprite1 = factory.from_color(RED, size=(player1.sprite.playerdata.damage * 5,
                                                    player1.sprite.playerdata.damage * 5))
@@ -141,7 +189,6 @@ def run():
     missileSprite2_3 = factory.from_color(BLUE, size=(player2.sprite.playerdata.damage * 5,
                                                     player2.sprite.playerdata.damage * 5))
 
-
     player1missiles = []
     player2missiles = []
     player1missiles2 = []
@@ -149,30 +196,52 @@ def run():
     player1missiles3 = []
     player2missiles3 = []
 
-
-    sdl2.ext.fill(windowsurface, WHITE)
-
     last_fire_time1 = 0
     last_fire_time1_1 = 0
     last_fire_time2 = 0
     last_fire_time2_1 = 0
 
 
-    sdl2.ext.fill(windowsurface, WHITE)
+    #sdl2.ext.fill(windowsurface, WHITE)
     #renderHPBar1(30, 10, 400, 40, 1, GREEN, BLACK, windowsurface)
     #renderHPBar2(480, 10, 400, 40, 1, GREEN, BLACK, windowsurface)
 
     hit2 = False
     hit1 = False
+    player1win = False
+    player2win = False
+
+    #font = sdl2.ext.BitmapFont(windowsurface, (100, 100))
+
+    #playername = sdl2.sdlttf.TTF_RenderText_Solid(font, "Player 1", (255, 255, 255))
+
+    if SDL_Init(SDL_INIT_AUDIO) != 0:
+        raise RuntimeError("Cannot initialize audio system: {}".format(SDL_GetError()))
+
+    sound_file = RESOURCES.get_path("music.wav")
+    sound = WavSound(sound_file)
+    devid = SDL_OpenAudioDevice(None, 0, sound.spec, None, 0)
+
+    missile_file = RESOURCES.get_path("shoot2.wav")
+    missileSound = WavSound(missile_file)
+    devid2 = SDL_OpenAudioDevice(None, 0, missileSound.spec, None, 0)
+
+
+    if devid == 0:
+        raise RuntimeError("Unable to open audio device: {}".format(SDL_GetError()))
+
+    shot = False
+    #SDL_PauseAudioDevice(devid, 0)
 
     running = True
     while running:
-
-        #full health 18 = 1 percentage
+        #SDL_PauseAudioDevice(devid2, 0)
         sdl2.ext.fill(windowsurface, WHITE)
         renderHPBar1(30, 10, 400, 40, player1.sprite.playerdata.health, GREEN, BLACK, windowsurface)
-
         renderHPBar2(480, 10, 400, 40, player2.sprite.playerdata.health, GREEN, BLACK, windowsurface)
+
+        #font.render_on(windowsurface, "player 1", (30, 30))
+        #font.render("Player1")
 
         now_time = time.time()
 
@@ -231,7 +300,6 @@ def run():
                 player2missiles3.pop(0)
 
 
-        #missile1 = Missile1(world, missileSprite1, player1.sprite.playerdata.damage,0,0)
         for event in sdl2.ext.get_events():
             if event.type == sdl2.SDL_QUIT:
                 running = False
@@ -249,6 +317,10 @@ def run():
                 player1missiles.append(missile1)
                 last_fire_time1 = time.time()
                 last_fire_time1_1 = time.time()
+                SDL_CloseAudioDevice(devid2)
+                missileSound = WavSound(missile_file)
+                devid2 = SDL_OpenAudioDevice(None, 0, missileSound.spec, None, 0)
+                SDL_PauseAudioDevice(devid2, 0)
             if check_cooldown(now_time, last_fire_time1) > .2:
                 if len(player1missiles2) == 0:
                     missile2 = Missile(world, missileSprite1_2, player1.sprite.playerdata.damage, 8,
@@ -257,6 +329,10 @@ def run():
                     player1missiles2.append(missile2)
                     last_fire_time1 = time.time()
                     last_fire_time1_1 = time.time()
+                    SDL_CloseAudioDevice(devid2)
+                    missileSound = WavSound(missile_file)
+                    devid2 = SDL_OpenAudioDevice(None, 0, missileSound.spec, None, 0)
+                    SDL_PauseAudioDevice(devid2, 0)
             if check_cooldown(now_time, last_fire_time1_1) > .2:
                 if len(player1missiles3) == 0:
                     missile3 = Missile(world, missileSprite1_3, player1.sprite.playerdata.damage, 8,
@@ -265,7 +341,10 @@ def run():
                     player1missiles3.append(missile3)
                     last_fire_time1_1 = time.time()
                     last_fire_time1 = time.time()
-
+                    SDL_CloseAudioDevice(devid2)
+                    missileSound = WavSound(missile_file)
+                    devid2 = SDL_OpenAudioDevice(None, 0, missileSound.spec, None, 0)
+                    SDL_PauseAudioDevice(devid2, 0)
         # shoot a missile based on character damage
         if keystatus[sdl2.SDL_SCANCODE_RETURN]:
             if len(player2missiles) == 0:
@@ -275,6 +354,10 @@ def run():
                 player2missiles.append(missile1)
                 last_fire_time2 = time.time()
                 last_fire_time2_1 = time.time()
+                SDL_CloseAudioDevice(devid2)
+                missileSound = WavSound(missile_file)
+                devid2 = SDL_OpenAudioDevice(None, 0, missileSound.spec, None, 0)
+                SDL_PauseAudioDevice(devid2, 0)
             if check_cooldown(now_time, last_fire_time2) > .2:
                 if len(player2missiles2) == 0:
                     missile2 = Missile(world, missileSprite2_2, player2.sprite.playerdata.damage, -8,
@@ -283,6 +366,11 @@ def run():
                     player2missiles2.append(missile2)
                     last_fire_time2 = time.time()
                     last_fire_time2_1 = time.time()
+                    SDL_CloseAudioDevice(devid2)
+                    missileSound = WavSound(missile_file)
+                    devid2 = SDL_OpenAudioDevice(None, 0, missileSound.spec, None, 0)
+                    SDL_PauseAudioDevice(devid2, 0)
+
             if check_cooldown(now_time, last_fire_time2_1) > .2:
                 if len(player2missiles3) == 0:
                     missile3 = Missile(world, missileSprite2_3, player2.sprite.playerdata.damage, -8,
@@ -291,20 +379,10 @@ def run():
                     player2missiles3.append(missile3)
                     last_fire_time2_1 = time.time()
                     last_fire_time2 = time.time()
-            """
-           if len(player2missiles) == 0:
-               missile2 = Missile(world, missileSprite2, player2.sprite.playerdata.damage, -10,
-                                   player2.sprite.x + 50, player2.sprite.y + missileSprite2.size[0])
-               player2missiles.append(missile2)"""
-
-            #print(now_time, float(now_time- last_fire_time))
-            #if check_cooldown(now_time,last_fire_time) > 2:
-                #last_fire_time = time.time()
-                #player1.sprite.missiles += 1
-                #missile1 = Missile1(world, missileSprite1, player1.sprite.playerdata.damage, player1.sprite.x + 50, player1.sprite.y + 80)
-                #player1missiles.append(missile1)
-                #cd_clock_start = time.time()"""
-
+                    SDL_CloseAudioDevice(devid2)
+                    missileSound = WavSound(missile_file)
+                    devid2 = SDL_OpenAudioDevice(None, 0, missileSound.spec, None, 0)
+                    SDL_PauseAudioDevice(devid2, 0)
         if keystatus[sdl2.SDL_SCANCODE_W]:
             player1.vy = player1.sprite.playerdata.speed
             if player1.sprite.y <= 100:
@@ -333,40 +411,38 @@ def run():
             else:
                 player2.sprite.y += 4 + (player2.sprite.playerdata.speed)
 
-        """
-        for i in range(len(player1missiles)-1):
-            if player1missiles[i].sprite.x < 900: #size of the screen
-                player1missiles[i].sprite.x += 3
-        """
-
-        """
-        if event.type == sdl2.SDL_KEYDOWN:
-                if event.key.keysym.sym == sdl2.SDLK_UP:
-                    player2.sprite.y -= player2.playerdata.speed
-                    player2.vy = player2.playerdata.speed
-                if event.key.keysym.sym == sdl2.SDLK_DOWN:
-                    player2.sprite.y += player2.playerdata.speed
-                    player2.vy = player2.playerdata.speed
-
-                if event.key.keysym.sym == sdl2.SDLK_w:
-                    player2.sprite.y -= player2.playerdata.speed
-                    player2.vy = player2.playerdata.speed
-                if event.key.keysym.sym == sdl2.SDLK_s:
-                    player2.sprite.y += player2.playerdata.speed
-                    player2.vy = player2.playerdata.speed
-        if event.type == sdl2.SDL_KEYUP:
-                if event.key.keysym.sym in (sdl2.SDLK_UP, sdl2.SDLK_DOWN):
-                        player2.vy = 0
-        """
-
         if hit2:
             print("called")
-            player2.sprite.playerdata.health -= int(player1.sprite.playerdata.damage/2)
+            player2.sprite.playerdata.health -= math.ceil(player1.sprite.playerdata.damage/2)
             hit2 = False
 
         if hit1:
-            player1.sprite.playerdata.health -= int(player2.sprite.playerdata.damage/2)
+            print("called")
+            player1.sprite.playerdata.health -= math.ceil(player2.sprite.playerdata.damage/2)
             hit1 = False
+
+        if player1.sprite.playerdata.health <= 0:
+            #spriterenderer.render(win2)
+            player2win = True
+            #running = False
+        elif player2.sprite.playerdata.health <= 0:
+            #spriterenderer.render(win1)
+            player1win = True
+            #running = False
+
+        if player1win:
+            spriterenderer.render(win1)
+            player1.sprite.x = 1100
+            player2.sprite.x = -200
+            SDL_PauseAudioDevice(devid, 0)
+        elif player2win:
+            spriterenderer.render(win2)
+            player1.sprite.x = 1100
+            player2.sprite.x = -200
+            SDL_PauseAudioDevice(devid, 0)
+
+        if sound.done:
+            SDL_CloseAudioDevice(devid)
 
         sdl2.SDL_Delay(10)
 
@@ -374,7 +450,8 @@ def run():
 
         #processor = sdl2.ext.TestEventProcessor()
         #processor.run(window)
-        #spriterenderer.render(sprite)
+        #sdl2.ext.quit()
+        #return 0
 
 if __name__ == "__main__":
     sys.exit(run())
