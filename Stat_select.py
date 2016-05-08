@@ -580,7 +580,7 @@ def main():
     monkey_t.up()
     monkey_t.goto(-cscreen_width // 3, -cscreen_height // 2 + 100)
     monkey_t.onrelease(chose_monkey)
-    print("after monkey onrelease")
+    #print("after monkey onrelease")
 
     dog_t.up()
     dog_t.goto(0, -cscreen_height // 2 + 100)
@@ -591,11 +591,11 @@ def main():
     pig_t.onrelease(chose_pig)
 
     cwn.update()
-    print("after cwn.update")
+    #print("after cwn.update")
 
     cwn.onkeypress(exit_charscreen, 'Return')
     cwn.mainloop()
-    print("after cwn.mainloop")
+    #print("after cwn.mainloop")
 
     numbers = [number * 2 for number in range(1, 11)]
 
